@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<form method="post" action="//submit.form" onSubmit="return validateForm();">
+  <div style="width: 400px;">
+  </div>
+  <div style="padding-bottom: 18px;font-size : 21px;">Relatório - Sistema de Segurança</div>
+  <div style="display: flex; padding-bottom: 18px;width : 450px;">
+    <div style=" margin-left : 0; margin-right : 1%; width : 49%;">First Name<span style="color: red;"> *</span><br/>
+    <input type="text" id="data_14" name="data_14" style="width: 100%;" class="form-control"/>
+    </div>
+    <div style=" margin-left : 1%; margin-right : 0; width : 49%;">Last Name<span style="color: red;"> *</span><br/>
+      <input type="text" id="data_15" name="data_15" style="width: 100%;" class="form-control"/>
+    </div>
+  </div>
+  <div style="padding-bottom: 18px;">Date From<br/>
+    <input type="text" id="data_12" name="data_12" style="width : 250px;" class="form-control"/>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.4.0/pikaday.min.js" type="text/javascript"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.4.0/css/pikaday.min.css" rel="stylesheet" type="text/css" />
+  <script type="text/javascript">new Pikaday({ field: document.getElementById('data_12') });</script>
+  <div style="padding-bottom: 18px;">Date To<br/>
+    <input type="text" id="data_13" name="data_13" style="width : 250px;" class="form-control"/>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.4.0/pikaday.min.js" type="text/javascript"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.4.0/css/pikaday.min.css" rel="stylesheet" type="text/css" />
+  <script type="text/javascript">new Pikaday({ field: document.getElementById('data_13') });</script>
+  <div style="padding-bottom: 18px;">Opened Door Time<br/>
+    <input type="text" id="data_4" name="data_4" style="width : 250px;" class="form-control"/>
+  </div>
+  <div style="padding-bottom: 18px;"><input name="skip_Submit" value="Submit" type="submit"/></div>
+</form>
+
+<script type="text/javascript">
+  function validateForm() {
+    if (isEmpty(document.getElementById('data_14').value.trim())) {
+      alert('First Name is required!');
+      return false;
+    }
+    if (isEmpty(document.getElementById('data_15').value.trim())) {
+      alert('Last Name is required!');
+      return false;
+    }
+    return true;
+  }
+  function isEmpty(str) { return (str.length === 0 || !str.trim()); }
+  // function validateEmail(email) {
+  //   var re = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,15}(?:\.[a-z]{2})?)$/i;
+  // return isEmpty(email) || re.test(email);
+  // }
+</script>
+
+{% endblock %}
