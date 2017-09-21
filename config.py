@@ -2,4 +2,4 @@
 
 #Enable Flask's debugging features. False for production
 
-DEBUG = True
+DEBUG = False
