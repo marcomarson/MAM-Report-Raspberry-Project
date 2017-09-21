@@ -58,8 +58,8 @@ def index():
                 apartamento= request.form['ap']
                 datapre= datetime.date(int(datefrom[2]), int(datefrom[1]), int(datefrom[0]))
                 datapos= datetime.date(int(dateto[2]), int(dateto[1]), int(dateto[0]))
-                print(datapre, file=sys.stderr)
-                print(datapos, file=sys.stderr)
+                #print(datapre, file=sys.stderr)
+                #print(datapos, file=sys.stderr)
                 #if()
 
                 for doc in cur:
@@ -69,16 +69,22 @@ def index():
                             #if()
                             if(int(doc['tempo_portao_aberto']) > 30):
                                 dataprocessing= doc['horario_abertura'].split()
-                                print(dataprocessing, file=sys.stderr)
-                                if(doc['rfid']== rfid1):
+                                dataprocessing[1]= trocames(dataprocessing[1])
+                                dataprocessada= datetime.date(int(dataprocessing[4]),dataprocessing[1], int(dataprocessing[2]))
+                                print(dataprocessada, file=sys.stderr)
+                                if(doc['rfid']== rfid1 and datapre<=dataprocessada<=datapos):
                                     doc['rfid']='Isabel'
                                     doc['apartamento']=12
-                                elif(doc['rfid']== rfid2):
+                                    lista.append(doc)
+                                elif(doc['rfid']== rfid2 and datapre<=dataprocessada<=datapos):
                                     doc['rfid']='Rogério'
                                     doc['apartamento']=30
-                                lista.append(doc)
+                                    lista.append(doc)
                     else:
                         if 'tempo_portao_aberto' in doc.keys() and 'rfid' in doc.keys():
+                            dataprocessing= doc['horario_abertura'].split()
+                            dataprocessing[1]= trocames(dataprocessing[1])
+                            dataprocessada= datetime.date(int(dataprocessing[4]),dataprocessing[1], int(dataprocessing[2]))
                             if(apartamento=='12'):
 
                                 if(int(doc['tempo_portao_aberto']) > 30 and doc['rfid']== rfid1):
