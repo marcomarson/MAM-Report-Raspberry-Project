@@ -4,6 +4,7 @@ import sys
 from app import app
 from flask import Flask, render_template, url_for, request, session, redirect
 from flask_pymongo import PyMongo
+import pdfkit
 import bcrypt
 from app.__init__ import mongo
 import ssl
@@ -98,8 +99,12 @@ def index():
                                     lista.append(doc)
                 for x in lista:
                     print(x, file=sys.stderr)
-
-                return render_template('pdf.html', allvalues=lista)
+                templatepdf=render_template('pdf.html', allvalues=lista)
+                print(type(templatepdf), file=sys.stderr)
+                config = pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
+                pdfkit.from_string(templatepdf,output_path='app\\static\\pdfs\\out.pdf',configuration=config)
+                print("passou", file=sys.stderr)
+                return redirect(url_for('static', filename='/'.join(['pdfs', 'out.pdf'])), code=301)
 
         else:
             return render_template('report.html')
