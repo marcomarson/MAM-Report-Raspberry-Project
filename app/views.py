@@ -109,7 +109,7 @@ def index():
         else:
             return render_template('report.html')
 
-    return render_template('index.html')
+    return render_template('login.html')
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -121,7 +121,7 @@ def login():
         print(request.form['pass'].encode('utf-8'), file=sys.stderr)
         if  bcrypt.checkpw(request.form['pass'].encode('utf-8'), login_user['password']):
             session['username'] = request.form['username']
-            return redirect(url_for('index'))
+            return redirect(url_for('login'))
 
     return 'Invalid username/password combination'
 
@@ -135,7 +135,7 @@ def register():
             if existing_user is None:
                 hashpass = request.form['pass']
                 rfid = request.form['rfid']
-                users.insert({'name' : request.form['username'], 'apartamento' : hashpass, 'rfid': rfid})
+                users.insert({'name' : request.form['username'], 'apartamento' : hashpass, 'rfid': rfid, 'email' : request.form['email']})
                 return redirect(url_for('index'))
 
             return 'That username already exists!'
