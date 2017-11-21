@@ -33,7 +33,7 @@
   <header>
     <div class="main">
       <div class="wrap">
-        <h1><a href="index.html"><img src="{{ url_for('static', filename='images/logo.png') }}" alt="" style="height:30%; width:30%"></a></h1>
+        <h1><a href="/"><img src="{{ url_for('static', filename='images/logo.png') }}" alt="" style="height:30%; width:30%"></a></h1>
         <div class="slogan">Projeto de Segurança - MAM</div>
       </div>
       <div class="nav-shadow">
@@ -42,8 +42,9 @@
             <ul class="menu">
               <li class="current">  <a href="{{ url_for('register') }}"><i class="fa fa-btn fa-edit"></i>Inscrição</a></li>
               <li>  <a href="{{ url_for('report') }}"><i class="fa fa-fw fa-bar-chart-o"></i>Relatórios</a></li>
-              <li><a href="#">FAQ</a></li>
-              <li><a href="#">Contato</a></li>
+              <li>  <a href="{{ url_for('photos') }}"><i class="fa fa-fw fa-photo"></i>Fotos</a></li>
+              <li>  <a href="{{ url_for('faq') }}"><i class="fa fa-fw fa-question-circle-o"></i>FAQ</a></li>
+              <li>  <a href="{{ url_for('contato') }}"><i class="fa fa-fw fa-address-card"></i>Contato</a></li>
             </ul>
           </nav>
         </div>
