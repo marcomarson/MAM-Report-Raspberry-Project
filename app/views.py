@@ -1,5 +1,14 @@
-# views.py
+"""This is the view class of Flask.
+
+This file is reponsible for the views in the MVC model.
+"""
 from __future__ import print_function # In python 2.7
+
+__version__ = '1.0'
+__author__ = 'Marco Marson'
+
+
+
 import sys
 from app import app
 from flask import Flask, render_template, url_for, request, session, redirect,send_file
@@ -18,23 +27,7 @@ import gridfs
 from PIL import Image
 from io import StringIO
 from scipy.misc import toimage
-# def trocames(x):
-#     if x == 'Jun':
-#         return 6
-#     elif x =='Jul':
-#         return 7
-#     elif x =='Aug':
-#         return 8
-#     elif x =='Sep':
-#         return 9
-#     elif x =='Oct':
-#         return 10
-#     elif x =='Nov':
-#         return 11
-#     elif x =='Dec':
-#         return 12
-#
-#
+
 
 @app.route('/faq')
 def faq():
@@ -81,20 +74,33 @@ def index():
         if request.method == 'POST':
                 print("Passou", file=sys.stderr)
                 data = mongo.db.data
-                data_found = data.find({'apartamento' : request.form['ap']})
-
-                if data_found:
-                    print("Achou")
+                datafrom=request.form['data_12']
+                datafrom=datafrom+" 22:00:00"
+                datato=request.form['data_13']
+                datato=datato+" 22:00:00"
+                datainicial=datetime.datetime.strptime(datafrom,"%d/%m/%Y %H:%M:%S")
+                datainicial=datainicial.isoformat()
+                datainicial=datetime.datetime.strptime(datainicial, "%Y-%m-%dT%H:%M:%S")
+                datafinal=datetime.datetime.strptime(datato,"%d/%m/%Y %H:%M:%S")
+                datafinal = datafinal.isoformat()
+                datafinal=datetime.datetime.strptime(datafinal, "%Y-%m-%dT%H:%M:%S")
+                datafinal=datafinal.replace(tzinfo=None)
+                print(datafinal)
+                if(request.form['ap']):
+                    print("apzitcho")
+                    data_found = list(data.find({'apartamento' : request.form['ap'], "horario_abertura": {"$gte": datainicial}}))
                 else:
-                    return 'Não foi encontrado nada'
-                # for x in lista:
-                #     print(x, file=sys.stderr)
-                # templatepdf=render_template('pdf.html', allvalues=lista)
-                # print(type(templatepdf), file=sys.stderr)
-                # config = pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
-                # pdfkit.from_string(templatepdf,output_path='app\\static\\pdfs\\out.pdf',configuration=config)
-                # print("passou", file=sys.stderr)
-                # return redirect(url_for('static', filename='/'.join(['pdfs', 'out.pdf'])), code=301)
+                    data_found = list(data.find({"horario_abertura": {"$gt": datainicial}}))
+
+
+                for x in data_found:
+                    print (x["horario_abertura"])
+                templatepdf=render_template('pdf.html', allvalues=data_found)
+                print(type(templatepdf), file=sys.stderr)
+                config = pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
+                pdfkit.from_string(templatepdf,output_path='app\\static\\pdfs\\out.pdf',configuration=config)
+                print("passou", file=sys.stderr)
+                return redirect(url_for('static', filename='/'.join(['pdfs', 'out.pdf'])), code=301)
 
         else:
             return render_template('report.html')
@@ -123,14 +129,17 @@ def register():
         if request.method == 'POST':
             users = mongo.db.users
             existing_user = users.find_one({'name' : request.form['username']})
+            existing_rfid= users.find_one({'rfid' : request.form['rfid']})
+            existing_email=users.find_one({'email' : request.form['email']})
+            existing_interfone=users.find_one({'interfone' : request.form['interfone']})
 
-            if existing_user is None:
-                hashpass = bcrypt.hashpw(request.form['pass'].encode('utf8'), bcrypt.gensalt())
+            if existing_user is None and existing_rfid is None and existing_email is None and existing_interfone is None :
+                #hashpass = bcrypt.hashpw(request.form['pass'].encode('utf8'), bcrypt.gensalt())
                 rfid = request.form['rfid']
-                users.insert({'name' : request.form['username'], 'password':hashpass,'apartamento' : request.form['ap'], 'rfid': rfid, 'email' : request.form['email']})
+                users.insert({'name' : request.form['username'],'interfone':request.form['interfone'], 'apartamento' : request.form['ap'], 'rfid': rfid, 'email' : request.form['email']})
                 return redirect(url_for('index'))
 
-            return 'That username already exists!'
+            return 'Alguma informação já está sendo utilizada em outro usuario!'
 
         return render_template('register.html')
 

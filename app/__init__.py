@@ -1,4 +1,10 @@
-# app/__init__.py
+"""This is the first class to start Flask.
+
+This file is reponsible for starting the framework Flask
+"""
+
+__version__ = '1.0'
+__author__ = 'Marco Marson'
 
 import flask_login
 from flask import Flask, render_template, url_for, request, session, redirect
