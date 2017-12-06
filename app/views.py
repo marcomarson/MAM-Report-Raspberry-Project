@@ -2,16 +2,10 @@
 
 This file is reponsible for the views in the MVC model.
 """
-from __future__ import print_function # In python 2.7
-
-__version__ = '1.0'
-__author__ = 'Marco Marson'
-
-
-
+from __future__ import print_function  # In python 2.7
 import sys
 from app import app
-from flask import Flask, render_template, url_for, request, session, redirect,send_file
+from flask import Flask, render_template, url_for, request, session, redirect, send_file
 from flask_pymongo import PyMongo
 import pdfkit
 import bcrypt
@@ -28,6 +22,8 @@ from PIL import Image
 from io import StringIO
 from scipy.misc import toimage
 
+__version__ = '1.0'
+__author__ = 'Marco Marson'
 
 @app.route('/faq')
 def faq():
@@ -39,6 +35,7 @@ def contato():
 
 @app.route('/photos', methods=['POST','GET'])
 def photos():
+    error=None
     if 'username' in session:
         if request.method == 'POST':
                 print("Passou", file=sys.stderr)
@@ -52,7 +49,8 @@ def photos():
                 cur= collection.find({apartamento: ap})
 
                 if not cur:
-                    raise Exception("mongo file does not exist! {0}".format(filename))
+                    Error= " Não possui fotos no sistema com durante esse período"
+                    return render_template("photos.html", error=error)
                 listafoto=[]
                 for image in cur:
                     im=Image.open(image)
@@ -64,12 +62,13 @@ def photos():
                 return render_template("album.html", listafoto,toimage)
 
         else:
-            return render_template("photos.html")
+            return render_template("photos.html", error=error)
     else:
         return render_template('login.html')
 
 @app.route('/', methods=['POST', 'GET'])
 def index():
+    error=None
     if 'username' in session:
         if request.method == 'POST':
                 print("Passou", file=sys.stderr)
@@ -103,9 +102,9 @@ def index():
                 return redirect(url_for('static', filename='/'.join(['pdfs', 'out.pdf'])), code=301)
 
         else:
-            return render_template('report.html')
+            return render_template('report.html', error=error)
 
-    return render_template('login.html')
+    return render_template('login.html', error=error)
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -118,12 +117,12 @@ def login():
         if  bcrypt.checkpw(request.form['pass'].encode('utf-8'), login_user['password']):
             session['username'] = request.form['username']
             return redirect(url_for('register'))
-
-    return 'Invalid username/password combination'
+    error="Erro no Login, senha ou login incorretos."
+    return render_template('login.html', error=error)
 
 @app.route('/register', methods=['POST', 'GET'])
 def register():
-
+    error=None
     if 'username' in session:
 
         if request.method == 'POST':
@@ -139,12 +138,13 @@ def register():
                 users.insert({'name' : request.form['username'],'interfone':request.form['interfone'], 'apartamento' : request.form['ap'], 'rfid': rfid, 'email' : request.form['email']})
                 return redirect(url_for('index'))
 
-            return 'Alguma informação já está sendo utilizada em outro usuario!'
+            error='Alguma informação já está sendo utilizada em outro usuario!'
+            return render_template('register.html', error=error)
 
-        return render_template('register.html')
+        return render_template('register.html', error=error)
 
     else:
-        return render_template('login.html')
+        return render_template('login.html',error=error)
 
 
 @app.route('/logout')
