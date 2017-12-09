@@ -3,7 +3,7 @@
 This file is reponsible for the views in the MVC model.
 """
 from __future__ import print_function  # In python 2.7
-import sys
+import sys,os
 from app import app
 from flask import Flask, render_template, url_for, request, session, redirect, send_file
 from flask_pymongo import PyMongo
@@ -17,13 +17,31 @@ from bson.objectid import ObjectId
 import gridfs
 import base64
 import datetime
-import gridfs
 from PIL import Image
 from io import StringIO
 from scipy.misc import toimage
+from io import BytesIO
+from tempfile import NamedTemporaryFile
+from shutil import copyfileobj
 
 __version__ = '1.0'
 __author__ = 'Marco Marson'
+
+
+def trocadata(tempo):
+    # dataasertrocada=tempo
+    # divide=dataasertrocada.split(" ")
+    # dividedata=divide[0].split("-")
+    # dividehorario=divide[1].split("+")
+    datacerta=str(tempo.day)+"/"+str(tempo.month)+"/"+str(tempo.year)+" às "+str(tempo.hour)+":"+str(tempo.minute)
+    return datacerta
+
+
+@app.before_request
+def make_session_permanent():
+    session.permanent = True
+    app.permanent_session_lifetime = datetime.timedelta(minutes=5)
+
 
 @app.route('/faq')
 def faq():
@@ -43,23 +61,34 @@ def photos():
                 dateto=request.form['data_13'].split('/')
                 uri = "mongodb://marcomarson:naruto18@raspberry-shard-00-00-h82fm.mongodb.net:27017,raspberry-shard-00-01-h82fm.mongodb.net:27017,raspberry-shard-00-02-h82fm.mongodb.net:27017/projeto?ssl=true&replicaSet=Raspberry-shard-0&authSource=admin"
                 client = MongoClient(uri)
-                db = client.data
-                collection = db.fs.files
+                db=client.projeto
+                fs=gridfs.GridFS(db)
                 ap=request.form['ap']
-                cur= collection.find({apartamento: ap})
-
-                if not cur:
-                    Error= " Não possui fotos no sistema com durante esse período"
-                    return render_template("photos.html", error=error)
+                if(request.form['ap']):
+                    cur= fs.find({"apartamento": ap})
+                    print("passou ap", file=sys.stderr)
+                else:
+                    cur= fs.find()
                 listafoto=[]
-                for image in cur:
-                    im=Image.open(image)
-                    img_io = StringIO()
-                    im.save(img_io, 'JPEG', quality=70)
-                    img_io.seek(0)
-                    listafoto.append(img_io)
+                x=0
+                for grid_data in fs.find():
+                    text = grid_data.read()
+                    #print(text)
+                    # Non test code
+                    dataBytesIO = BytesIO(text)
+                    img=Image.open(dataBytesIO)
+                    img.save("C:\\Users\\Marco\\Desktop\\Python\\Python App\\Python-App-Time-Management\\app\\static\\img\\"+str(x)+".png", "PNG")
+                    x=x+1
+                for subdir, dirs, files in os.walk("C:\\Users\\Marco\\Desktop\\Python\\Python App\\Python-App-Time-Management\\app\\static\\img"):
+                    for file in files:
+                        #print os.path.join(subdir, file)
+                        filepath = subdir + os.sep + file
 
-                return render_template("album.html", listafoto,toimage)
+                        if filepath.endswith(".png"):
+                            listafoto.append('img\\'+file)
+                            print(listafoto[0])
+
+                return render_template("album.html", listafoto=listafoto)
 
         else:
             return render_template("photos.html", error=error)
@@ -89,10 +118,14 @@ def index():
                     print("apzitcho")
                     data_found = list(data.find({'apartamento' : request.form['ap'], "horario_abertura": {"$gte": datainicial}}))
                 else:
-                    data_found = list(data.find({"horario_abertura": {"$gt": datainicial}}))
+                    data_found = list(data.find({"horario_abertura": {"$gt": datainicial}, "horario_fecha": {"$lt": datafinal}}))
 
-
+                if not data_found:
+                    error="Sem dados no sistema com as informações solicitadas"
+                    return render_template('report.html', error=error)
                 for x in data_found:
+                    print (x["horario_abertura"])
+                    x["horario_abertura"]=trocadata(x["horario_abertura"])
                     print (x["horario_abertura"])
                 templatepdf=render_template('pdf.html', allvalues=data_found)
                 print(type(templatepdf), file=sys.stderr)
@@ -146,6 +179,11 @@ def register():
     else:
         return render_template('login.html',error=error)
 
+
+
+@app.route('/rfidvincula')
+def vincula():
+    
 
 @app.route('/logout')
 def logout():
