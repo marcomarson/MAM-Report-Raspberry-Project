@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+{% block body %}
+<div class="container col-md-12">
+    <div class="row">
+          {% if error %}
+           <p class=error><strong>Erro:</strong> {{ error }} </p>
+         {% endif %}
+              <table class="table ">
+                  {% for x in usuario  %}
+
+                  <tr>
+                    <td>
+                        <form method=POST action="{{ rfid }}">
+                        <h2 style= "color:#E57C00; font-size:22px; text-align:center" align="center" >{{ x['name'] }}</h2>
+
+                        <input type="number" required class="form-control" readonly value="{{ x['apartamento'] }}" name="ap">
+                        <input type="hidden" required class="form-control" readonly  value="{{ rfid }}" name="rfid_id">
+                        <input type="hidden" required class="form-control" readonly  value="{{ x['_id'] }}" name="user_id">
+                        <button type="submit" class="btn btn-primary btn-block">Vincular</button>
+                      </form>
+
+
+                    </td>
+                  </tr>
+                  {% endfor %}
+              </table>
+            <br>
+        </div>
+    </div>
+</div>
+{% endblock %}

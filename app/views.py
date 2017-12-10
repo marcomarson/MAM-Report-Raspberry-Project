@@ -161,19 +161,11 @@ def register():
 
         if request.method == 'POST':
             users = mongo.db.users
-            existing_user = users.find_one({'name' : request.form['username']})
-            existing_rfid= users.find_one({'rfid' : request.form['rfid']})
-            existing_email=users.find_one({'email' : request.form['email']})
-            existing_interfone=users.find_one({'interfone' : request.form['interfone']})
 
-            if existing_user is None and existing_rfid is None and existing_email is None and existing_interfone is None :
                 #hashpass = bcrypt.hashpw(request.form['pass'].encode('utf8'), bcrypt.gensalt())
-                rfid = request.form['rfid']
-                users.insert({'name' : request.form['username'],'interfone':request.form['interfone'], 'apartamento' : request.form['ap'], 'rfid': rfid, 'email' : request.form['email']})
-                return redirect(url_for('index'))
+            users.insert({'name' : request.form['username'],'interfone':request.form['interfone'], 'apartamento' : request.form['ap'], 'rfid': "", 'email' : request.form['email']})
+            return redirect(url_for('index'))
 
-            error='Alguma informação já está sendo utilizada em outro usuario!'
-            return render_template('register.html', error=error)
 
         return render_template('register.html', error=error)
 
@@ -186,10 +178,45 @@ def register():
 def vincula():
     error=None
     if 'username' in session:
-
-        return render_template('rfid.html', error=error)
+        rfid = mongo.db.rfid
+        all_values = rfid.find({})
+        return render_template('rfid.html', error=error, rfid=all_values, trocadata=trocadata)
     else:
         return render_template('login.html',error=error)
+
+@app.route("/vincula/<rfid_id>", methods=['GET', 'POST'])
+def vincula_rfid(rfid_id):
+    error=None
+    if 'username' in session:
+        if request.method == "GET":
+            users = mongo.db.users
+
+            users_without_rfid=list(users.find({"rfid":""}))
+            for xx in users_without_rfid:
+                print (xx['apartamento'], file=sys.stderr)
+                print (xx['name'], file=sys.stderr)
+            return render_template('vincularfid.html', error=error, rfid=rfid_id, usuario=users_without_rfid)
+
+
+        if request.method == "POST":
+            user_id= request.form['user_id']
+            users = mongo.db.users
+            rfid = mongo.db.rfid
+            rfid_found = rfid.find_one({"_id":ObjectId(rfid_id)})
+
+            users.update_one(
+            {"_id": ObjectId(user_id)},
+            {
+            "$set": {
+                "rfid":rfid_found['rfid'],
+            }
+            }
+            )
+            rfid.delete_one({"_id": ObjectId(rfid_id)})
+            return redirect(url_for('vincula'))
+
+    else:
+        return redirect(url_for('index'))
 
 @app.route('/modifica')
 def modifica():
