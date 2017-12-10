@@ -23,6 +23,7 @@ from scipy.misc import toimage
 from io import BytesIO
 from tempfile import NamedTemporaryFile
 from shutil import copyfileobj
+from bson.objectid import ObjectId
 
 __version__ = '1.0'
 __author__ = 'Marco Marson'
@@ -181,9 +182,71 @@ def register():
 
 
 
-@app.route('/rfidvincula')
+@app.route('/vincula')
 def vincula():
-    
+    error=None
+    if 'username' in session:
+
+        return render_template('rfid.html', error=error)
+    else:
+        return render_template('login.html',error=error)
+
+@app.route('/modifica')
+def modifica():
+    error=None
+    if 'username' in session:
+        users = mongo.db.users
+        all_users = users.find({})
+        return render_template('modify.html', error=error, people=all_users)
+
+
+    else:
+        return render_template('login.html',error=error)
+
+@app.route("/modifica/<user_id>", methods=['POST', 'GET'])
+def edit_users(user_id):
+    error=None
+    if 'username' in session:
+
+        if request.method == 'POST':
+            users = mongo.db.users
+
+            users.update_one(
+            {"_id": ObjectId(user_id)},
+            {
+            "$set": {
+                "name":request.form['username'],
+                "email":request.form['email'],
+                "rfid":request.form['rfid'],
+                "apartamento": request.form['ap'],
+                "interfone":request.form['interfone']
+            }
+            }
+            )
+            return redirect(url_for('modifica'))
+        if request.method == "GET":
+            users = mongo.db.users
+
+            specified_user=users.find_one({"_id": ObjectId(user_id)})
+            print (specified_user['name'],file=sys.stderr)
+            return render_template('edit.html', error=error, user=specified_user)
+
+    else:
+        return redirect(url_for('index'))
+
+@app.route("/remove/<user_id>", methods=['GET'])
+def remove_users(user_id):
+    error=None
+    if 'username' in session:
+        if request.method == "GET":
+            users = mongo.db.users
+
+            specified_user=users.delete_one({"_id": ObjectId(user_id)})
+            print (specified_user['name'],file=sys.stderr)
+            return redirect(url_for('modifica'))
+
+    else:
+        return redirect(url_for('index'))
 
 @app.route('/logout')
 def logout():

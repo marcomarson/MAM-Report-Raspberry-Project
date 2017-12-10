@@ -43,7 +43,9 @@
          </div>
          <div class="collapse navbar-collapse text-center" id="top-navbar">
              <ul class="nav navbar-nav">
-               <li class="current">  <a href="{{ url_for('register') }}"><i class="fa fa-btn fa-edit"></i>Inscrição</a></li>
+               <li class="current">  <a href="{{ url_for('register') }}"><i class="fa fa-plus-circle"></i> Inscrições</a></li>
+               <li>  <a href="{{ url_for('modifica') }}"><i class="fa fa-btn fa-edit"></i>Modificações</a></li>
+               <li>  <a href="{{ url_for('vincula') }}"><i class="fa fa-btn fa-edit"></i>Vincular RFID</a></li>
                <li>  <a href="{{ url_for('report') }}"><i class="fa fa-fw fa-bar-chart-o"></i>Relatórios</a></li>
                <li>  <a href="{{ url_for('photos') }}"><i class="fa fa-fw fa-photo"></i>Fotos</a></li>
                <li>  <a href="{{ url_for('faq') }}"><i class="fa fa-fw fa-question-circle-o"></i>FAQ</a></li>

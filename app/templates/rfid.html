@@ -5,12 +5,14 @@
   <table class="table table-striped">
     <thead>
       <td><h2 style= "color:#E57C00; font-size:22px">RFID</h2></td>
-      <td>Cadastrar</td>
+      <td><h2 style= "color:#E57C00; font-size:22px">Horário</h2></td>
+      <td><h2 style= "color:#E57C00; font-size:22px">Ação</h2></td>
     </thead>
     <tbody>
       {% for x in rfid  %}
       <tr>
-      <td><h2 style= "color:#E57C00; font-size:22px">x</h2></td>
+      <td><h2 style= "color:#E57C00; font-size:22px">{{ x['rfid'] }}</h2></td>
+      <td><h2 style= "color:#E57C00; font-size:22px">{{ x['horario'] }}</h2></td>
       <td><a href="{{ url_for('rfidvincula') }}"><i class="fa fa-fw fa-edit-circle-o"></i></a> </td>
       </tr>
       {% endfor %}
