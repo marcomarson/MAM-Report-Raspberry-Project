@@ -24,7 +24,6 @@ from io import BytesIO
 from tempfile import NamedTemporaryFile
 from shutil import copyfileobj
 from bson.objectid import ObjectId
-
 __version__ = '1.0'
 __author__ = 'Marco Marson'
 
@@ -63,16 +62,16 @@ def photos():
                 uri = "mongodb://marcomarson:naruto18@raspberry-shard-00-00-h82fm.mongodb.net:27017,raspberry-shard-00-01-h82fm.mongodb.net:27017,raspberry-shard-00-02-h82fm.mongodb.net:27017/projeto?ssl=true&replicaSet=Raspberry-shard-0&authSource=admin"
                 client = MongoClient(uri)
                 db=client.projeto
-                fs=gridfs.GridFS(db)
-                ap=request.form['ap']
-                if(request.form['ap']):
-                    cur= fs.find({"apartamento": ap})
-                    print("passou ap", file=sys.stderr)
-                else:
-                    cur= fs.find()
+                fss=gridfs.GridFS(db)
+                fa=db.fs.files.find({})
+                all_values=[]
+                for x in fa:
+
+                    all_values.append(x)
+                    print(x)
                 listafoto=[]
                 x=0
-                for grid_data in fs.find():
+                for grid_data in fss.find():
                     text = grid_data.read()
                     #print(text)
                     # Non test code
@@ -89,7 +88,7 @@ def photos():
                             listafoto.append('img\\'+file)
                             print(listafoto[0])
 
-                return render_template("album.html", listafoto=listafoto)
+                return render_template("album.html", listafoto=listafoto,all_values=all_values,trocadata=trocadata)
 
         else:
             return render_template("photos.html", error=error)
@@ -212,7 +211,7 @@ def vincula_rfid(rfid_id):
             }
             }
             )
-            rfid.delete_one({"_id": ObjectId(rfid_id)})
+            rfid.delete_many({"rfid": rfid_found['rfid']})
             return redirect(url_for('vincula'))
 
     else:
@@ -223,7 +222,7 @@ def modifica():
     error=None
     if 'username' in session:
         users = mongo.db.users
-        all_users = users.find({})
+        all_users = users.find({"interfone":{'$ne': None}})
         return render_template('modify.html', error=error, people=all_users)
 
 
@@ -244,7 +243,6 @@ def edit_users(user_id):
             "$set": {
                 "name":request.form['username'],
                 "email":request.form['email'],
-                "rfid":request.form['rfid'],
                 "apartamento": request.form['ap'],
                 "interfone":request.form['interfone']
             }
@@ -269,7 +267,6 @@ def remove_users(user_id):
             users = mongo.db.users
 
             specified_user=users.delete_one({"_id": ObjectId(user_id)})
-            print (specified_user['name'],file=sys.stderr)
             return redirect(url_for('modifica'))
 
     else:

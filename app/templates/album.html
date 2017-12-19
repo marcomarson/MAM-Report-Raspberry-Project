@@ -1,15 +1,16 @@
 {% extends "layout.html" %}
 {% block body %}
-<div class="container">
+<div class="container col-md-12">
   <h2 style= "color:#E57C00; font-size:22px" class="col-md-4 col-md-offset-2">Fotos Sistema MAM</h2>
   <table class="table table-striped">
     <thead>
     </thead>
     <tbody>
-      {% for x in listafoto  %}
+      {% for x,data in listafoto|zip(all_values)  %}
       <tr>
       <td><img src="/static/{{x}}" height="200px" width="200px" alt="User Image"></td>
-      <td><h2 style= "color:#E57C00; font-size:22px">Apartamento: 0</h2> </td>
+      <td><h2 style= "color:#E57C00; font-size:22px">Apartamento: {{ data['apartamento'] }}</h2> </td>
+      <td><h2 style= "color:#E57C00; font-size:22px">Data: {{ trocadata(data['dia']) }}</h2> </td>
       </tr>
       {% endfor %}
     </tbody>

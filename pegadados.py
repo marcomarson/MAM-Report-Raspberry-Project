@@ -22,7 +22,7 @@ rfid1=[166,2,217,160,221]
 rfid2=[54,109,54,94,51]
 str1 = ''.join(str(e)+"-" for e in rfid1)
 
-gravaInformacoesRFID(str1,data)
+#gravaInformacoesRFID(str1,data)
 
 
 path = 'rfidlog.txt'
@@ -36,7 +36,8 @@ if f.mode == 'r':
         rfid=x[0].split("-")
         rfid=rfid[:-1]
         rfid=list(map(int,rfid)) ##py 2 would be map(int,rfid)
+        print(rfid)
         data=datetime.datetime.strptime(x[1],"%d %b %Y %H:%M:%S")
-        savelogrfid(rfid,data)
+        #savelogrfid(rfid,data)
     f.close()
-open(path, 'w').close()
+#open(path, 'w').close()
